@@ -19,8 +19,15 @@ const INPUT_FILE: &str = "res/eventmsgs.mc";
 #[cfg(not(windows))]
 fn prefix_command(cmd: &str) -> Cow<str> {
     let target = env::var("TARGET").unwrap();
-    let arch: &str = target.split("-").collect::<Vec<&str>>()[0];
-    format!("{}-w64-mingw32-{}", arch, cmd).into()
+    if target.contains("msvc") {
+        // For MSVC targets, return the command without MinGW-w64 prefix.
+        // This assumes the necessary tools are available in the environment for MSVC builds.
+        cmd.into()
+    } else {
+        // For non-MSVC targets (e.g., MinGW), prefix the command as before.
+        let arch: &str = target.split("-").collect::<Vec<&str>>()[0];
+        format!("{}-w64-mingw32-{}", arch, cmd).into()
+    }
 }
 
 #[cfg(windows)]
