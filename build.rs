@@ -21,11 +21,10 @@ fn prefix_command(cmd: &str) -> Cow<str> {
     let target = env::var("TARGET").unwrap();
 
     if target.contains("msvc") {
-        println!("cargo:warning=The eventlog crate currently does not support MSVC targets in cross-compilation environments.");
         cmd.into()
     } else {
-        Command::new("x86_64-w64-mingw32-windmc").args(&["-r", "src", "messages.mc"]).status().unwrap();
-        Command::new("x86_64-w64-mingw32-windres").args(&["-O", "coff", "-i", "src/messages.rc", "-o", "messages.res"]).status().unwrap();
+      let arch: &str = target.split("-").collect::<Vec<&str>>()[0];
+       format!("{}-w64-mingw32-{}", arch, cmd).into()
     }
 }
 
